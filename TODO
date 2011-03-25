@@ -1,0 +1,39 @@
+- Parse command line:
+
+hackpack.py open/unpack xyz.hp
+
+hackpack.py run/try xyz.in 'command line'
+
+hackpack.py create xyz.hp [directory]
+ (directory defaults to xyz (same as hp-file name) if not given)
+
+- Create xyz.reward-file
+Input: xyz.rewardclear and .out
+
+- Implement run command
+Manually create challenge directory, with correct xyz.reward-file. 
+Output is either:
+Attempt failed. Output is incorrect. 
+or
+Congratulation, challenge solved. 
+Reward message:
+
+Blabla
+
+- Implement open command
+In first edition simply unzips the file contents
+
+- Implement create command
+Creates .reward-files. 
+Zips all files except for .out-files. 
+
+- Add time limits
+Never hard, only signals that notifies that it is considered cheating. 
+
+- Generalize reward-concept
+A reward should be able to contain any number of files. 
+All rewards are maybe actually zip-files? 
+The create command might always use xyz.rewarddir to figure out what should be in the reward. 
+.hp-files should be automatically unpacked. 
+
+
