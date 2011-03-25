@@ -7,6 +7,8 @@ hackpack.py run/try xyz.in 'command line'
 hackpack.py create xyz.hp [directory]
  (directory defaults to xyz (same as hp-file name) if not given)
 
+First version simply prints the interesting parameters in reasonably named functions reflecting the three modes. 
+
 - Create xyz.reward-file
 Input: xyz.rewardclear and .out
 
