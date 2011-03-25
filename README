@@ -8,8 +8,8 @@ The reward is a surprise that will be revealed when the challenge is solved and 
 
 hackpack is also the name of the tool that is used to unpack hackpack files, attempt to open rewards and to create hackpacks. 
 
-The hackpack tool is written in Python, but other implementations in other languages are expected in the future. The hackpacks are essentially language agnostic, they assume that the input is fed into a program's stdin and that the solution is written to stdout. 
+The hackpack tool is written in Python, but other implementations in other languages are expected in the future. The hackpacks are, unless otherwise stated in the challenge, language agnostic, the input is fed into a program's stdin and the solution is read from the stdout of the process. This means that any language or tool able to read from stdin and write to stdout can be used to solve the challenge. 
 
-The hackpack team hopes that this project will encourage people to go code hiking with their fellow hackpackers. 
+The hackpack team hopes that this project will encourage people to go code hiking with fellow hackpackers, and also contribute to the hackpacking community by creating high quality hackpacks of their own. 
 
 Happy hacking! 
