@@ -84,6 +84,9 @@ def parse_command_line(argv):
             args['directory'] = argv[3]
         else:
             args['directory'] = os.path.splitext(args['file'])[0]
+    elif action == 'unlock' and len(argv) > 3:
+        args['file'] = argv[2]
+        args['execute'] = argv[3]
     else:
         raise CommandLineException('Missing parameters.')
     return action, args
