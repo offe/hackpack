@@ -30,8 +30,7 @@ def normalize_newlines(data):
                    for line in StringIO(data))
 
 def make_3des_key(key):
-    return pyDes.triple_des(key, pyDes.CBC, 8*"\x00", pad=None,
-                            padmode=pyDes.PAD_PKCS5)
+    return pyDes.triple_des(key, pyDes.CBC, "hackpack", padmode=pyDes.PAD_PKCS5)
 
 def read_verified_data(f):
     '''
