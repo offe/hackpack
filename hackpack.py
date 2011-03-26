@@ -2,6 +2,8 @@
 
 import pyDes
 import hashlib
+import os
+import sys
 from StringIO import StringIO
 
 def sha256(data):
@@ -62,7 +64,30 @@ def unlock_reward(reward_blob_file, solution_output_file):
     reward_message = decrypt(key, reward_blob_file.read())
     return reward_message
 
+class CommandLineException(Exception):
+    def __init__(self, message):
+        super(CommandLineException, self).__init__(message)
+
+def parse_command_line(argv):
+    if len(argv) < 2:
+        raise CommandLineException('Missing action.')
+    action = argv[1]
+    args = {}
+    if action == 'open' and len(argv) > 2:
+        args['file'] = argv[2]
+    elif action == 'build' and len(argv) > 2:
+        args['file'] = argv[2]
+        if len(argv) > 3:
+            args['directory'] = argv[3]
+        else:
+            args['directory'] = os.path.splitext(args['file'])[0]
+    else:
+        raise CommandLineException('Missing parameters.')
+    return action, args
+
 def main():
+    action, args = parse_command_line(sys.argv)
+    print action, args
     solution_output_file = StringIO('''\
 foo
 bar
