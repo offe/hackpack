@@ -52,12 +52,12 @@ def encrypt(key, data):
 def decrypt(key, data):
     return make_3des_key(key).decrypt(data)
 
-def encrypt_reward(reward_message_file, solution_output_file):
+def lock_reward(reward_message_file, solution_output_file):
     key = hashkey(normalize_newlines(solution_output_file.read()))
-    reward_blob = encrypt(key, reward_message_file.read())
-    return reward_blob
+    locked_reward = encrypt(key, reward_message_file.read())
+    return locked_reward
 
-def decrypt_reward(reward_blob_file, solution_output_file):
+def unlock_reward(reward_blob_file, solution_output_file):
     key = hashkey(normalize_newlines(solution_output_file.read()))
     reward_message = decrypt(key, reward_blob_file.read())
     return reward_message
@@ -68,10 +68,10 @@ foo
 bar
 ''')
     reward_message_file = StringIO('rosebud')
-    reward_blob = encrypt_reward(reward_message_file, solution_output_file)
-    reward_blob_file = StringIO(reward_blob)
+    locked_reward = lock_reward(reward_message_file, solution_output_file)
+    locked_reward_file = StringIO(locked_reward)
     solution_output_file.seek(0)
-    reward_message = decrypt_reward(reward_blob_file, solution_output_file)
+    reward_message = unlock_reward(locked_reward_file, solution_output_file)
     print repr(reward_message)
 
 if __name__ == '__main__':

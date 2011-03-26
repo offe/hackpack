@@ -2,17 +2,17 @@
 
 hackpack.py open/unpack xyz.hp
 
-hackpack.py run/try xyz.in 'command line'
+hackpack.py unlock xyz.reward 'command line'
 
-hackpack.py create xyz.hp [directory]
+hackpack.py build xyz.hp [directory]
  (directory defaults to xyz (same as hp-file name) if not given)
 
 First version simply prints the interesting parameters in reasonably named functions reflecting the three modes. 
 
-- Create xyz.reward-file
+- Build xyz.reward-file
 Input: xyz.rewardclear and .out
 
-- Implement run command
+- Implement unlock command
 Manually create challenge directory, with correct xyz.reward-file. 
 Output is either:
 Attempt failed. Output is incorrect. 
@@ -25,17 +25,17 @@ Blabla
 - Implement open command
 In first edition simply unzips the file contents
 
-- Implement create command
+- Implement build command
 Creates .reward-files. 
 Zips all files except for .out-files. 
 
 - Add time limits
-Never hard, only signals that notifies that it is considered cheating. 
+Time limits are never hard (technically enforced), only signals that notifies that it is considered cheating. 
 
 - Generalize reward-concept
 A reward should be able to contain any number of files. 
 All rewards are maybe actually zip-files? 
-The create command might always use xyz.rewarddir to figure out what should be in the reward. 
-.hp-files should be automatically unpacked. 
+The build command might always use xyz.rewarddir to figure out what should be in the reward. 
+.hp-files in rewards should be automatically unpacked. 
 
 
