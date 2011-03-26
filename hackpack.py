@@ -40,6 +40,9 @@ def read_verified_data(f):
     >>> message = sha256(content) + content
     >>> read_verified_data(StringIO(message))
     'baz'
+    >>> incorrectmessage = 32 * 'a' + content
+    >>> read_verified_data(StringIO(incorrectmessage)) is None
+    True
     '''
     correct_hash = f.read(32)
     data = f.read()
