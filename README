@@ -4,7 +4,7 @@ hackpack is a project similar to Project Euler, TopCoder or Google Code Jam. It 
 
 A hackpack is a package with a coding challenge. hackpack files have the extension .hp and they turn into directories when unpacked. The directory consists of instructions of the problem to be solved, some inputs with matching rewards. The rewards are locked and can only be unlocked if a program is created that, when fed the input, generates the correct output according to the instructions. 
 
-The reward is a surprise that will be revealed when the challenge is solved and it can be any type of file; a picture, a message or even a new hackpack. By recursively embedding hackpacks as the reward of previous hackpacks it is possible to create "russian doll" hackpacks; a sequence of challenges that needs to be solved one after the other to unlock the innermost reward. 
+The reward is a surprise that will be revealed when the challenge is solved and it can be any type of file; a picture, a message or even a new hackpack. By recursively embedding hackpacks as the reward of previous hackpacks it is possible to create matryoshka hackpacks; a sequence of challenges that needs to be solved one after the other to unlock the innermost reward. 
 
 hackpack is also the name of the tool that is used to unpack hackpack files, attempt to unlock rewards and to build hackpacks. 
 
