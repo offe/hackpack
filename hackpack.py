@@ -3,6 +3,7 @@
 import pyDes
 import hashlib
 import os
+import fnmatch
 import sys
 from StringIO import StringIO
 
@@ -91,9 +92,35 @@ def parse_command_line(argv):
         raise CommandLineException('Missing parameters.')
     return action, args
 
+def build(file_name, dir_name):
+    print 'building %s' % file_name
+    print 'contents of %s:' % dir_name
+    rewardfile_bases = []
+    for root, dirnames, filenames in os.walk(dir_name):
+        for f in fnmatch.filter(filenames, '*.in'):
+            base = f[:-3]
+            if all(base+'.'+ext in filenames for ext in ['out', 'rewardclear']):
+                rewardfile_bases.append(base)
+        to_copy = filenames[:]
+        for reward_base in rewardfile_bases:
+            def remove_if_present(a, e):
+                if e in a:
+                    a.remove(e)
+            remove_if_present(to_copy, reward_base+'.out')
+            remove_if_present(to_copy, reward_base+'.rewardclear')
+                    
+            print 'root', root
+            print 'dirnames', dirnames
+            print 'filenames', filenames
+            print 'to_copy', to_copy
+            print 'rewardfile_bases', rewardfile_bases
+
 def main():
     action, args = parse_command_line(sys.argv)
     print action, args
+    if action == 'build':
+        build(args['file'], args['directory'])
+    """
     solution_output_file = StringIO('''\
 foo
 bar
@@ -104,6 +131,7 @@ bar
     solution_output_file.seek(0)
     reward_message = unlock_reward(locked_reward_file, solution_output_file)
     print repr(reward_message)
+    """
 
 if __name__ == '__main__':
     main()
