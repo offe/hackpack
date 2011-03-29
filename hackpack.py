@@ -4,11 +4,20 @@ from __future__ import with_statement
 import pyDes
 import hashlib
 import os
+import errno
 import fnmatch
 import sys
 from StringIO import StringIO
 from contextlib import closing
 from zipfile import ZipFile
+
+def mkdir_if_not_there(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST:
+            pass
+        else: raise
 
 def sha256(data):
     m = hashlib.sha256()
@@ -61,7 +70,7 @@ def encrypt(key, data):
 def decrypt(key, data):
     return make_3des_key(key).decrypt(data)
 
-def lock_reward(reward_message_file, solution_output_file):
+def get_locked_reward(reward_message_file, solution_output_file):
     key = hashkey(normalize_newlines(solution_output_file.read()))
     locked_reward = encrypt(key, reward_message_file.read())
     return locked_reward
@@ -82,11 +91,17 @@ def parse_command_line(argv):
     args = {}
     if action == 'open' and len(argv) > 2:
         args['file'] = argv[2]
+        if len(argv) > 3:
+            args['directory'] = argv[3]
+        else:
+            # Extract in same directory as .hp-file is
+            args['directory'] = os.path.split(args['file'])[0]
     elif action == 'build' and len(argv) > 2:
         args['file'] = argv[2]
         if len(argv) > 3:
             args['directory'] = argv[3]
         else:
+            # Find stuff in directory named as .hp-file without extension
             args['directory'] = os.path.splitext(args['file'])[0]
     elif action == 'unlock' and len(argv) > 3:
         args['file'] = argv[2]
@@ -96,7 +111,8 @@ def parse_command_line(argv):
     return action, args
 
 def write_reward(f, out_file, reward_info_file, reward_dir=None):
-    f.write(reward_info_file.read())
+    locked_reward = get_locked_reward(reward_info_file, out_file)
+    f.write(locked_reward)
 
 def build(file_name, dir_name):
     print 'building %s' % file_name
@@ -131,18 +147,36 @@ def build(file_name, dir_name):
                 write_reward(reward, out_file, info_file)
                 zf.writestr(os.path.join(output_file_base, rfb+'.reward'), reward.getvalue())
 
+def unpack(file_name, directory):
+    zf = ZipFile(file_name, mode='r')
+    namelist = zf.namelist()
+    namelist.sort()
+    for name in namelist:
+        print name
+        #if name.endswith('/'):
+            #os.mkdir(os.path.join(directory, name))
+        #else:
+        needed_dir = os.path.join(directory, os.path.split(name)[0])
+        print 'needed: ', needed_dir
+        mkdir_if_not_there(os.path.join(directory, os.path.split(name)[0]))
+        with open(os.path.join(directory, name), 'wb') as outfile:
+            outfile.write(zf.read(name))
+
+
 def main():
     action, args = parse_command_line(sys.argv)
     print action, args
     if action == 'build':
         build(args['file'], args['directory'])
+    elif action == 'open':
+        unpack(args['file'], args['directory']) 
     """
     solution_output_file = StringIO('''\
 foo
 bar
 ''')
     reward_message_file = StringIO('rosebud')
-    locked_reward = lock_reward(reward_message_file, solution_output_file)
+    locked_reward = get_locked_reward(reward_message_file, solution_output_file)
     locked_reward_file = StringIO(locked_reward)
     solution_output_file.seek(0)
     reward_message = unlock_reward(locked_reward_file, solution_output_file)
