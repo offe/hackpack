@@ -97,12 +97,11 @@ def parse_command_line(argv):
             # Extract in same directory as .hp-file is
             args['directory'] = os.path.split(args['file'])[0]
     elif action == 'build' and len(argv) > 2:
-        args['file'] = argv[2]
+        args['directory'] = argv[2]
         if len(argv) > 3:
-            args['directory'] = argv[3]
+            args['file'] = argv[3]
         else:
-            # Find stuff in directory named as .hp-file without extension
-            args['directory'] = os.path.splitext(args['file'])[0]
+            args['file'] = args['directory'] + '.hp'
     elif action == 'unlock' and len(argv) > 3:
         args['file'] = argv[2]
         args['execute'] = argv[3]
