@@ -95,6 +95,9 @@ def parse_command_line(argv):
         raise CommandLineException('Missing parameters.')
     return action, args
 
+def write_reward(f, out_file, reward_info_file, reward_dir=None):
+    f.write(reward_info_file.read())
+
 def build(file_name, dir_name):
     print 'building %s' % file_name
     print 'contents of %s:' % dir_name
@@ -106,12 +109,12 @@ def build(file_name, dir_name):
         for root, dirnames, filenames in os.walk(dir_name):
             for f in fnmatch.filter(filenames, '*.in'):
                 base = f[:-3]
-                if all(base+'.'+ext in filenames for ext in ['out', 'rewardclear']):
+                if all(base+'.'+ext in filenames for ext in ['out', 'rewardinfo']):
                     rewardfile_bases.append(base)
             to_copy = filenames[:]
             for reward_base in rewardfile_bases:
                 to_copy.remove(reward_base+'.out')
-                to_copy.remove(reward_base+'.rewardclear')
+                to_copy.remove(reward_base+'.rewardinfo')
                     
             print 'root', root
             print 'dirnames', dirnames
@@ -119,8 +122,14 @@ def build(file_name, dir_name):
             print 'to_copy:\n', '\t'+'\n\t'.join(to_copy)
             print 'rewardfile_bases:\n', '\t'+'\n\t'.join(rewardfile_bases)
 
-            for cf in to_copy:
-                zf.write(os.path.join(root, cf), os.path.join(output_file_base, cf))
+            for cfn in to_copy:
+                zf.write(os.path.join(root, cfn), os.path.join(output_file_base, cfn))
+            for rfb in rewardfile_bases:
+                reward = StringIO()
+                out_file = open(os.path.join(root, rfb+'.out'))
+                info_file = open(os.path.join(root, rfb+'.rewardinfo'))
+                write_reward(reward, out_file, info_file)
+                zf.writestr(os.path.join(output_file_base, rfb+'.reward'), reward.getvalue())
 
 def main():
     action, args = parse_command_line(sys.argv)
