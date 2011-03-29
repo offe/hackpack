@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import with_statement
 
 import pyDes
 import hashlib
@@ -6,6 +7,8 @@ import os
 import fnmatch
 import sys
 from StringIO import StringIO
+from contextlib import closing
+from zipfile import ZipFile
 
 def sha256(data):
     m = hashlib.sha256()
@@ -95,25 +98,29 @@ def parse_command_line(argv):
 def build(file_name, dir_name):
     print 'building %s' % file_name
     print 'contents of %s:' % dir_name
+    (output_dir, output_file_name) = os.path.split(file_name)
+    (output_file_base, output_file_ext)=os.path.splitext(output_file_name)
+
     rewardfile_bases = []
-    for root, dirnames, filenames in os.walk(dir_name):
-        for f in fnmatch.filter(filenames, '*.in'):
-            base = f[:-3]
-            if all(base+'.'+ext in filenames for ext in ['out', 'rewardclear']):
-                rewardfile_bases.append(base)
-        to_copy = filenames[:]
-        for reward_base in rewardfile_bases:
-            def remove_if_present(a, e):
-                if e in a:
-                    a.remove(e)
-            remove_if_present(to_copy, reward_base+'.out')
-            remove_if_present(to_copy, reward_base+'.rewardclear')
+    with closing(ZipFile(file_name, mode='w')) as zf:
+        for root, dirnames, filenames in os.walk(dir_name):
+            for f in fnmatch.filter(filenames, '*.in'):
+                base = f[:-3]
+                if all(base+'.'+ext in filenames for ext in ['out', 'rewardclear']):
+                    rewardfile_bases.append(base)
+            to_copy = filenames[:]
+            for reward_base in rewardfile_bases:
+                to_copy.remove(reward_base+'.out')
+                to_copy.remove(reward_base+'.rewardclear')
                     
             print 'root', root
             print 'dirnames', dirnames
             print 'filenames', filenames
-            print 'to_copy', to_copy
-            print 'rewardfile_bases', rewardfile_bases
+            print 'to_copy:\n', '\t'+'\n\t'.join(to_copy)
+            print 'rewardfile_bases:\n', '\t'+'\n\t'.join(rewardfile_bases)
+
+            for cf in to_copy:
+                zf.write(os.path.join(root, cf), os.path.join(output_file_base, cf))
 
 def main():
     action, args = parse_command_line(sys.argv)

@@ -1,0 +1,12 @@
+$ ./hackpack.py build firstpack.hp samplepacks/firstpacksource/
+$ unzip -l firstpack.hp
+Archive:  firstpack.hp
+  Length     Date   Time    Name
+ --------    ----   ----    ----
+       14  03-25-11 23:40   firstpack/challenge.in
+       16  03-25-11 23:40   firstpack/example.expected
+       14  03-25-11 23:40   firstpack/example.in
+      124  03-25-11 23:40   firstpack/instructions
+ --------                   -------
+      168                   4 files
+$
