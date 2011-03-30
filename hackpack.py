@@ -107,7 +107,7 @@ The commands are:
    open    Unpack hackpack file into a directory
    unlock  Unlock a rewardfile using a solution program
 
-See '%s help <command> for more information on a specific command.'""" 
+See '%s help <command>' for more information on a specific command.""" 
 % (file_name, file_name))
     if command is None:
         print default_help
