@@ -6,9 +6,11 @@ import hashlib
 import os
 import errno
 import fnmatch
+import shlex
 import sys
 from StringIO import StringIO
 from contextlib import closing
+from subprocess import Popen, PIPE
 from zipfile import ZipFile
 
 def mkdir_if_not_there(path):
@@ -47,7 +49,7 @@ def normalize_newlines(data):
 def make_3des_key(key):
     return pyDes.triple_des(key, pyDes.CBC, "hackpack", padmode=pyDes.PAD_PKCS5)
 
-def read_verified_data(f):
+def read_verified_data(data):
     '''
     >>> content = 'baz'
     >>> message = sha256(content) + content
@@ -57,8 +59,8 @@ def read_verified_data(f):
     >>> read_verified_data(StringIO(incorrectmessage)) is None
     True
     '''
-    correct_hash = f.read(32)
-    data = f.read()
+    correct_hash = data[:32]
+    data = data[32:]
     if sha256(data) == correct_hash:
         return data
     else:
@@ -72,7 +74,9 @@ def decrypt(key, data):
 
 def get_locked_reward(reward_message_file, solution_output_file):
     key = hashkey(normalize_newlines(solution_output_file.read()))
-    locked_reward = encrypt(key, reward_message_file.read())
+    reward_message = reward_message_file.read()
+    checksum = sha256(reward_message)
+    locked_reward = encrypt(key, checksum + reward_message)
     return locked_reward
 
 def unlock_reward(reward_blob_file, solution_output_file):
@@ -149,18 +153,25 @@ def build(file_name, dir_name):
 def unpack(file_name, directory):
     zf = ZipFile(file_name, mode='r')
     namelist = zf.namelist()
-    namelist.sort()
     for name in namelist:
-        print name
-        #if name.endswith('/'):
-            #os.mkdir(os.path.join(directory, name))
-        #else:
         needed_dir = os.path.join(directory, os.path.split(name)[0])
-        print 'needed: ', needed_dir
         mkdir_if_not_there(os.path.join(directory, os.path.split(name)[0]))
         with open(os.path.join(directory, name), 'wb') as outfile:
             outfile.write(zf.read(name))
 
+
+def unlock(file_name, solution):
+    args = shlex.split(solution)
+    p = Popen(args, stdin=PIPE, stdout=PIPE)
+    in_file_name = os.path.splitext(file_name)[0] + '.in'
+    in_f = open(in_file_name)
+    out_data, _ = p.communicate(in_f.read())
+    reward = unlock_reward(open(file_name), StringIO(out_data))
+    reward_message = read_verified_data(reward)
+    if reward_message is not None:
+        print reward_message
+    else:
+        print 'Faile to unlock reward.'
 
 def main():
     action, args = parse_command_line(sys.argv)
@@ -169,6 +180,8 @@ def main():
         build(args['file'], args['directory'])
     elif action == 'open':
         unpack(args['file'], args['directory']) 
+    elif action == 'unlock':
+        unlock(args['file'], args['execute']) 
     """
     solution_output_file = StringIO('''\
 foo
