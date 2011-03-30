@@ -118,10 +118,10 @@ def write_reward(f, out_file, reward_info_file, reward_dir=None):
     f.write(locked_reward)
 
 def build(file_name, dir_name):
-    print 'building %s' % file_name
-    print 'contents of %s:' % dir_name
+    print 'Building %s' % file_name
+    print
     (output_dir, output_file_name) = os.path.split(file_name)
-    (output_file_base, output_file_ext)=os.path.splitext(output_file_name)
+    (output_file_base, output_file_ext) = os.path.splitext(output_file_name)
 
     rewardfile_bases = []
     with closing(ZipFile(file_name, mode='w')) as zf:
@@ -135,20 +135,20 @@ def build(file_name, dir_name):
                 to_copy.remove(reward_base+'.out')
                 to_copy.remove(reward_base+'.rewardinfo')
                     
-            print 'root', root
-            print 'dirnames', dirnames
-            print 'filenames', filenames
-            print 'to_copy:\n', '\t'+'\n\t'.join(to_copy)
-            print 'rewardfile_bases:\n', '\t'+'\n\t'.join(rewardfile_bases)
-
             for cfn in to_copy:
-                zf.write(os.path.join(root, cfn), os.path.join(output_file_base, cfn))
+                full_file_name = os.path.join(root, cfn)
+                print 'Adding %s' % full_file_name
+                zf.write(full_file_name, os.path.join(output_file_base, cfn))
             for rfb in rewardfile_bases:
+                reward_info_name = os.path.join(root, rfb+'.rewardinfo')
+                print 'Building reward file for %s' % reward_info_name
                 reward = StringIO()
                 out_file = open(os.path.join(root, rfb+'.out'))
-                info_file = open(os.path.join(root, rfb+'.rewardinfo'))
+                info_file = open(reward_info_name)
                 write_reward(reward, out_file, info_file)
                 zf.writestr(os.path.join(output_file_base, rfb+'.reward'), reward.getvalue())
+    print 
+    print 'Build complete.'
 
 def unpack(file_name, directory):
     zf = ZipFile(file_name, mode='r')
@@ -156,8 +156,12 @@ def unpack(file_name, directory):
     for name in namelist:
         needed_dir = os.path.join(directory, os.path.split(name)[0])
         mkdir_if_not_there(os.path.join(directory, os.path.split(name)[0]))
-        with open(os.path.join(directory, name), 'wb') as outfile:
+        out_name = os.path.join(directory, name)
+        print 'Writing %s' % out_name
+        with open(out_name, 'wb') as outfile:
             outfile.write(zf.read(name))
+    print
+    print 'Opening of hackpack complete.'
 
 
 def unlock(file_name, solution):
@@ -169,31 +173,22 @@ def unlock(file_name, solution):
     reward = unlock_reward(open(file_name), StringIO(out_data))
     reward_message = read_verified_data(reward)
     if reward_message is not None:
+        print 'Reward successfully unlocked.'
+        print
+        print 'Message accessed:'
+        print
         print reward_message
     else:
-        print 'Faile to unlock reward.'
+        print 'Failed to unlock reward.'
 
 def main():
     action, args = parse_command_line(sys.argv)
-    print action, args
     if action == 'build':
         build(args['file'], args['directory'])
     elif action == 'open':
         unpack(args['file'], args['directory']) 
     elif action == 'unlock':
         unlock(args['file'], args['execute']) 
-    """
-    solution_output_file = StringIO('''\
-foo
-bar
-''')
-    reward_message_file = StringIO('rosebud')
-    locked_reward = get_locked_reward(reward_message_file, solution_output_file)
-    locked_reward_file = StringIO(locked_reward)
-    solution_output_file.seek(0)
-    reward_message = unlock_reward(locked_reward_file, solution_output_file)
-    print repr(reward_message)
-    """
 
 if __name__ == '__main__':
     main()
