@@ -1,4 +1,19 @@
-This hackpack is special. There are no instructions. 
+Your objective is to unlock the challenge.reward file. 
 
-Figure out the pattern in the example.in and example.expected. 
+This is done by writing a program that performs a task. 
 
+Figure out the pattern in the example.in and example.expected.
+Then write a program that when fed example.in to stdin will 
+produce example.expected on stdout. You can write the program 
+in the language of your choice. 
+
+When you have a program you think solves the general problem 
+you can try to unlock the reward file:
+
+$ hackpack.py challenge.reward 'my_program'
+
+This will feed your program with challenge.in. Only if your 
+program produces the correct output will the rewardfile 
+be unlocked. Inside it is a message. 
+
+Good luck! 
