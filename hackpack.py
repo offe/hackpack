@@ -88,30 +88,82 @@ class CommandLineException(Exception):
     def __init__(self, message):
         super(CommandLineException, self).__init__(message)
 
+def print_command_help(file_name, synopsis, description):
+    print 'SYNOPSIS'
+    print '   %s %s' % (file_name, synopsis)
+    print
+    print 'DESCRIPTION'
+    for line in description.split('\n'):
+        print '   %s' % line
+
+def print_help(command=None):
+    file_name = os.path.split(__file__)[1]
+    default_help = ("""\
+usage: %s <command> [<args>]
+
+The commands are:
+   build   Build a hackpack file from construction directory
+   help    Show this help text
+   open    Unpack hackpack file into a directory
+   unlock  Unlock a rewardfile using a solution program
+
+See '%s help <command> for more information on a specific command.'""" 
+% (file_name, file_name))
+    if command is None:
+        print default_help
+    elif command == 'open':
+        print_command_help(file_name, 'open <file> [<directory>]', """\
+Writes the contents of <file> into <directory>.
+If no <directory> is given, the current working directory is used.""")
+    elif command == 'build':
+        print_command_help(file_name, 'build <directory> [<file>]', """\
+Builds a hackpack named <file> from the contents of <directory>.
+If no <file> is given, the name becomes <directory>.hp.""")
+    elif command == 'unlock':
+        print_command_help(file_name, 'unlock <reward> <command>', """\
+Tries to unlock <reward> by running <command>.
+The <command>'s stdin is fed by the reward's matching in-file.
+	If the <command> writes the correct output to stdout the reward is unlocked.""")
+    elif command == 'help':
+        print_command_help(file_name, 'help [<command>]', """\
+If no <command> is given shows a list of all commands.
+If <commands> is given prints the synopsis and description of the command.""")
+    else:
+        print 'no help available. %s is not a hackpack command.' % command
+
 def parse_command_line(argv):
     if len(argv) < 2:
-        raise CommandLineException('Missing action.')
-    action = argv[1]
+        raise CommandLineException('Missing command.')
+    command = argv[1]
     args = {}
-    if action == 'open' and len(argv) > 2:
+    if command == 'open': 
+        if len(argv) < 3:
+            raise CommandLineException('Missing parameter.')
         args['file'] = argv[2]
         if len(argv) > 3:
             args['directory'] = argv[3]
         else:
             # Extract in same directory as .hp-file is
             args['directory'] = os.path.split(args['file'])[0]
-    elif action == 'build' and len(argv) > 2:
+    elif command == 'build':
+        if len(argv) < 3:
+            raise CommandLineException('Missing parameter.')
         args['directory'] = argv[2]
         if len(argv) > 3:
             args['file'] = argv[3]
         else:
             args['file'] = args['directory'] + '.hp'
-    elif action == 'unlock' and len(argv) > 3:
+    elif command == 'unlock':
+        if len(argv) < 4:
+            raise CommandLineException('Missing parameter.')
         args['file'] = argv[2]
         args['execute'] = argv[3]
+    elif command == 'help':
+        help_for = None if len(argv) < 3 else argv[2]
+        print_help(help_for)
     else:
-        raise CommandLineException('Missing parameters.')
-    return action, args
+        raise CommandLineException('Unknown command.')
+    return command, args
 
 def write_reward(f, out_file, reward_info_file, reward_dir=None):
     locked_reward = get_locked_reward(reward_info_file, out_file)
@@ -182,13 +234,17 @@ def unlock(file_name, solution):
         print 'Failed to unlock reward.'
 
 def main():
-    action, args = parse_command_line(sys.argv)
-    if action == 'build':
-        build(args['file'], args['directory'])
-    elif action == 'open':
-        unpack(args['file'], args['directory']) 
-    elif action == 'unlock':
-        unlock(args['file'], args['execute']) 
+    try:
+        action, args = parse_command_line(sys.argv)
+        if action == 'build':
+            build(args['file'], args['directory'])
+        elif action == 'open':
+            unpack(args['file'], args['directory']) 
+        elif action == 'unlock':
+            unlock(args['file'], args['execute']) 
+    except CommandLineException, e:
+        print e
+        print "See '%s help'." % os.path.split(__file__)[1]
 
 if __name__ == '__main__':
     main()
