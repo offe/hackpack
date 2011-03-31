@@ -1,33 +1,4 @@
-- Parse command line:
-
-hackpack.py open/unpack xyz.hp
-
-hackpack.py unlock xyz.reward 'command line'
-
-hackpack.py build xyz.hp [directory]
- (directory defaults to xyz (same as hp-file name) if not given)
-
-First version simply prints the interesting parameters in reasonably named functions reflecting the three modes. 
-
-- Build xyz.reward-file
-Input: xyz.rewardclear and .out
-
-- Implement unlock command
-Manually create challenge directory, with correct xyz.reward-file. 
-Output is either:
-Attempt failed. Output is incorrect. 
-or
-Congratulation, challenge solved. 
-Reward message:
-
-Blabla
-
-- Implement open command
-In first edition simply unzips the file contents
-
-- Implement build command
-Creates .reward-files. 
-Zips all files except for .out-files. 
+- Add hints
 
 - Add time limits
 Time limits are never hard (technically enforced), only signals that notifies that it is considered cheating. 
@@ -36,6 +7,6 @@ Time limits are never hard (technically enforced), only signals that notifies th
 A reward should be able to contain any number of files. 
 All rewards are maybe actually zip-files? 
 The build command might always use xyz.rewarddir to figure out what should be in the reward. 
-.hp-files in rewards should be automatically unpacked. 
+.hp-files in rewards should NOT be automatically unpacked. 
 
-
+- Add support for binary input/output
