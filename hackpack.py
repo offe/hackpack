@@ -104,7 +104,7 @@ usage: %s <command> [<args>]
 The commands are:
    build   Build a hackpack file from construction directory
    help    Show this help text
-   open    Unpack hackpack file into a directory
+   open    Unpack hackpack file (with .hp extension) into a directory
    unlock  Unlock a rewardfile using a solution program
 
 See '%s help <command>' for more information on a specific command.""" 
@@ -113,7 +113,8 @@ See '%s help <command>' for more information on a specific command."""
         print default_help
     elif command == 'open':
         print_command_help(file_name, 'open <file> [<directory>]', """\
-Writes the contents of <file> into <directory>.
+Writes the contents of hackpack file <file> into <directory>.
+A hackpack file usually has the extension .hp.
 If no <directory> is given, the current working directory is used.""")
     elif command == 'build':
         print_command_help(file_name, 'build <directory> [<file>]', """\
