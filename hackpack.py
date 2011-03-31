@@ -219,7 +219,28 @@ def unpack(file_name, directory):
 
 def unlock(file_name, solution):
     args = shlex.split(solution)
-    p = Popen(args, stdin=PIPE, stdout=PIPE)
+    try:
+        p = Popen(args, stdin=PIPE, stdout=PIPE)
+    except OSError, e:
+        print "Could not execute '%s':" % solution
+        print '%s (Error number %d)' % (e.strerror, e.errno)
+        if e.errno == 2:
+            print 
+            print "Hint:"
+            print "The current directory might not be in the path."
+            print "In that case, try with './%s' instead." % solution
+        elif e.errno == 8:
+            print 
+            print "Hint:"
+            print "The file does not appear to be an executable."
+            print "If the file needs to be executed by another program,"
+            print "try adding a shebang or run 'program %s'" % (solution)
+        elif e.errno == 13:
+            print 
+            print "Hint:"
+            print "The file might have the wrong file permissions."
+            print "Doing a 'chmod +x' on the file might solve the problem."
+        return 
     in_file_name = os.path.splitext(file_name)[0] + '.in'
     in_f = open(in_file_name)
     out_data, _ = p.communicate(in_f.read())
