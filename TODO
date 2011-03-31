@@ -1,12 +1,16 @@
-- Add hints
-
-- Add time limits
-Time limits are never hard (technically enforced), only signals that notifies that it is considered cheating. 
 
 - Generalize reward-concept
 A reward should be able to contain any number of files. 
 All rewards are maybe actually zip-files? 
 The build command might always use xyz.rewarddir to figure out what should be in the reward. 
 .hp-files in rewards should NOT be automatically unpacked. 
+
+- Feed in-files line by line to enable progress bar when unlocking
+
+- Add hints
+
+- Add time limits
+Time limits are never hard (technically enforced), only signals that notifies that it is considered cheating. 
+
 
 - Add support for binary input/output
