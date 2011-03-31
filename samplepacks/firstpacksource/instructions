@@ -10,7 +10,7 @@ in the language of your choice.
 When you have a program you think solves the general problem 
 you can try to unlock the reward file:
 
-$ hackpack.py challenge.reward 'my_program'
+$ hackpack.py unlock challenge.reward 'my_program'
 
 This will feed your program with challenge.in. Only if your 
 program produces the correct output will the rewardfile 
