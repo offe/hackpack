@@ -207,6 +207,9 @@ def unpack(file_name, directory):
     zf = ZipFile(file_name, mode='r')
     namelist = zf.namelist()
     for name in namelist:
+        if any(name.startswith(forbidden) for forbidden in ('/', '..')):
+           print 'Skipping %s' % name
+           continue
         needed_dir = os.path.join(directory, os.path.split(name)[0])
         mkdir_if_not_there(os.path.join(directory, os.path.split(name)[0]))
         out_name = os.path.join(directory, name)
