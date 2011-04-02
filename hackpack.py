@@ -958,8 +958,8 @@ def get_locked_reward(reward_message_file, solution_output_file):
 
 def unlock_reward(reward_blob_file, solution_output_file):
     key = hashkey(normalize_newlines(solution_output_file.read()))
-    reward_message = decrypt(key, reward_blob_file.read())
-    return reward_message
+    reward_data = decrypt(key, reward_blob_file.read())
+    return reward_data
 
 class CommandLineException(Exception):
     def __init__(self, message):
@@ -1043,8 +1043,22 @@ def parse_command_line(argv):
         raise CommandLineException('Unknown command.')
     return command, args
 
-def write_reward(f, out_file, reward_info_file, reward_dir=None):
-    locked_reward = get_locked_reward(reward_info_file, out_file)
+def write_reward(f, out_file, reward_dir, reward_info_file=None):
+    reward = StringIO()
+    prefix_len = len(reward_dir.split(os.path.sep))
+    with closing(ZipFile(reward, mode='w')) as zf:
+        for root, dirnames, filenames in os.walk(reward_dir):
+            in_reward_dir = ''
+            path_elements = root.split(os.path.sep)[prefix_len:]
+            if path_elements:
+                in_reward_dir = os.path.join(*path_elements)
+            for filename in filenames:
+                zf.write(os.path.join(root, filename),
+                         os.path.join(in_reward_dir, filename))
+        if reward_info_file:
+            zf.writestr('.message', reward_info_file.read())
+    reward.seek(0)
+    locked_reward = get_locked_reward(reward, out_file)
     f.write(locked_reward)
 
 def build(file_name, dir_name):
@@ -1058,7 +1072,8 @@ def build(file_name, dir_name):
         for root, dirnames, filenames in os.walk(dir_name):
             for f in fnmatch.filter(filenames, '*.in'):
                 base = f[:-3]
-                if all(base+'.'+ext in filenames for ext in ['out', 'rewardinfo']):
+                if base + '.out' in filenames and base in dirnames:
+                    dirnames.remove(base)
                     rewardfile_bases.append(base)
             to_copy = filenames[:]
             for reward_base in rewardfile_bases:
@@ -1071,11 +1086,15 @@ def build(file_name, dir_name):
                 zf.write(full_file_name, os.path.join(output_file_base, cfn))
             for rfb in rewardfile_bases:
                 reward_info_name = os.path.join(root, rfb+'.rewardinfo')
-                print 'Building reward file for %s' % reward_info_name
+                print 'Building reward file for %s' % rfb
                 reward = StringIO()
                 out_file = open(os.path.join(root, rfb+'.out'))
                 info_file = open(reward_info_name)
-                write_reward(reward, out_file, info_file)
+                info_file = None
+                if os.path.exists(reward_info_name):
+                    info_file = open(reward_info_name)
+                write_reward(reward, out_file, os.path.join(root, rfb),
+                             info_file)
                 zf.writestr(os.path.join(output_file_base, rfb+'.reward'), reward.getvalue())
     print 
     print 'Build complete.'
@@ -1125,13 +1144,27 @@ def unlock(file_name, solution):
     in_f = open(in_file_name)
     out_data, _ = p.communicate(in_f.read())
     reward = unlock_reward(open(file_name), StringIO(out_data))
-    reward_message = read_verified_data(reward)
-    if reward_message is not None:
+    reward_data = read_verified_data(reward)
+    if reward_data is not None:
+        zf = ZipFile(StringIO(reward_data), mode='r')
         print 'Reward successfully unlocked.'
-        print
-        print 'Message accessed:'
-        print
-        print reward_message
+        directory = '.'
+        for name in zf.namelist():
+            if any(name.startswith(forbidden) for forbidden in ('/', '..')):
+               print 'Skipping %s' % name
+               continue
+            if name == '.message':
+                message = zf.read(name)
+                print
+                print 'Message:'
+                print message
+                continue
+            needed_dir = os.path.join(directory, os.path.split(name)[0])
+            mkdir_if_not_there(os.path.join(directory, os.path.split(name)[0]))
+            out_name = os.path.join(directory, name)
+            print 'Writing %s' % out_name
+            with open(out_name, 'wb') as outfile:
+                outfile.write(zf.read(name))
     else:
         print 'Failed to unlock reward.'
 
