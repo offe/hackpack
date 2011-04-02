@@ -1095,7 +1095,8 @@ def build(file_name, dir_name):
                     info_file = open(reward_info_name)
                 write_reward(reward, out_file, os.path.join(root, rfb),
                              info_file)
-                zf.writestr(os.path.join(output_file_base, rfb+'.reward'), reward.getvalue())
+                zf.writestr(os.path.join(output_file_base, rfb+'.reward'),
+                            reward.getvalue())
     print 
     print 'Build complete.'
 
