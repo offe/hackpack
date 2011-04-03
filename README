@@ -1,6 +1,6 @@
 hackpack - tool and format for distributed code challenges
 
-hackpack is a project similar to Project Euler, TopCoder or Google Code Jam. It is a way to package, distribute and enjoy coding challenges. Unlike the previously mentioned projects hackpack is uncentralized. Anyone can create their own hackpacks and distribute them freely. The problems are solved locally, and there is no client-server architecture. 
+hackpack is a project similar to Project Euler, TopCoder or Google Code Jam. It is a way to package, distribute and enjoy coding challenges. Unlike the previously mentioned projects hackpack is decentralized. Anyone can create their own hackpacks and distribute them freely. The problems are solved locally, and there is no client-server architecture. 
 
 A hackpack is a package with a coding challenge. hackpack files have the extension .hp and they turn into directories when unpacked. The directory consists of instructions of the problem to be solved, some inputs with matching rewards. The rewards are locked and can only be unlocked if a program is created that, when fed the input, generates the correct output according to the instructions. 
 
